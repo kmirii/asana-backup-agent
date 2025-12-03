@@ -13,10 +13,13 @@ const ASANA_ACCESS_TOKEN = process.env.ASANA_ACCESS_TOKEN;
 const ASANA_WORKSPACE_ID = process.env.ASANA_WORKSPACE_ID;
 const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
-// Google Drive authentication
+// Google Drive authentication - FIXED SCOPES
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY),
-  scopes: ['https://www.googleapis.com/auth/drive.file'],
+  scopes: [
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/spreadsheets'
+  ],
 });
 
 const drive = google.drive({ version: 'v3', auth });
@@ -39,6 +42,7 @@ app.post('/backup-asana', async (req, res) => {
         const tasks = await fetchProjectTasks(project.gid);
         const backupResult = await createProjectBackup(project, tasks);
         backupResults.push(backupResult);
+        console.log(`Successfully backed up: ${project.name}`);
       } catch (error) {
         console.error(`Error backing up project ${project.name}:`, error.message);
         backupResults.push({
